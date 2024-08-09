@@ -10,7 +10,7 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
                 createTableFromJSON(jsonData);
             } catch (error) {
                 console.error('Error creating table:', error);
-                alert('خطا در پردازش فایل JSON: ' + error.message);
+                alert('error JSON: ' + error.message);
             }
         };
         reader.readAsText(file);
