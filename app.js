@@ -5,29 +5,33 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
     if (file) {
         var reader = new FileReader();
         reader.onload = function(e) {
-            var jsonData = e.target.result;
+            var fileContent = e.target.result;
+            document.getElementById('fileContent').textContent = fileContent;
             try {
+                var jsonData = JSON.parse(fileContent);
                 createTableFromJSON(jsonData);
             } catch (error) {
-                console.error('Error creating table:', error);
-                alert('error JSON: ' + error.message);
+                console.error('Error parsing JSON:', error);
+                alert('JSON: ' + error.message);
             }
         };
         reader.readAsText(file);
     } else {
-        alert('Choose a file please');
+        alert('Choose a file please.');
     }
 });
-function createTableFromJSON(jsonData) {
-    var data = JSON.parse(jsonData);
+
+function createTableFromJSON(data) {
     var table = document.createElement("table");
     var tr = table.insertRow(-1);
+
     var headers = getHeaders(data);
     headers.forEach(function(header) {
         var th = document.createElement("th");
         th.innerHTML = header;
         tr.appendChild(th);
     });
+
     if (Array.isArray(data)) {
         data.forEach(function(item) {
             addRow(table, item, headers);
@@ -35,10 +39,12 @@ function createTableFromJSON(jsonData) {
     } else if (typeof data === 'object') {
         addRow(table, data, headers);
     }
+
     var divContainer = document.getElementById("showTable");
     divContainer.innerHTML = "";
     divContainer.appendChild(table);
 }
+
 function getHeaders(data) {
     var headers = new Set();
     if (Array.isArray(data)) {
@@ -50,6 +56,7 @@ function getHeaders(data) {
     }
     return Array.from(headers);
 }
+
 function addRow(table, rowData, headers) {
     var tr = table.insertRow(-1);
     headers.forEach(function(header) {
