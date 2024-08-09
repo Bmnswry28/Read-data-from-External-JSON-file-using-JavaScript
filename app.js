@@ -15,7 +15,7 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
         };
         reader.readAsText(file);
     } else {
-        alert('لطفاً یک فایل انتخاب کنید.');
+        alert('Choose a file please');
     }
 });
 function createTableFromJSON(jsonData) {
