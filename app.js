@@ -1,42 +1,60 @@
-document.getElementById('fileInput').addEventListener('change', function(e) {
-    var file = e.target.files[0];
-    var reader = new FileReader();
-    reader.onload = function(e) {
-        var jsonData = e.target.result;
-        createTableFromJSON(jsonData);
-    };
-    reader.readAsText(file);
-});
-
-function createTableFromJSON(jsonData) {
-    var arrBirds = JSON.parse(jsonData);
-    var col = [];
-    for (var i = 0; i < arrBirds.length; i++) {
-        for (var key in arrBirds[i]) {
-            if (col.indexOf(key) === -1) {
-                col.push(key);
+document.getElementById('uploadForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var fileInput = document.getElementById('fileInput');
+    var file = fileInput.files[0];
+    if (file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var jsonData = e.target.result;
+            try {
+                createTableFromJSON(jsonData);
+            } catch (error) {
+                console.error('Error creating table:', error);
+                alert('خطا در پردازش فایل JSON: ' + error.message);
             }
-        }
+        };
+        reader.readAsText(file);
+    } else {
+        alert('لطفاً یک فایل انتخاب کنید.');
     }
-
+});
+function createTableFromJSON(jsonData) {
+    var data = JSON.parse(jsonData);
     var table = document.createElement("table");
     var tr = table.insertRow(-1);
-
-    for (var i = 0; i < col.length; i++) {
+    var headers = getHeaders(data);
+    headers.forEach(function(header) {
         var th = document.createElement("th");
-        th.innerHTML = col[i];
+        th.innerHTML = header;
         tr.appendChild(th);
+    });
+    if (Array.isArray(data)) {
+        data.forEach(function(item) {
+            addRow(table, item, headers);
+        });
+    } else if (typeof data === 'object') {
+        addRow(table, data, headers);
     }
-
-    for (var i = 0; i < arrBirds.length; i++) {
-        tr = table.insertRow(-1);
-        for (var j = 0; j < col.length; j++) {
-            var tabCell = tr.insertCell(-1);
-            tabCell.innerHTML = arrBirds[i][col[j]];
-        }
-    }
-
     var divContainer = document.getElementById("showTable");
     divContainer.innerHTML = "";
     divContainer.appendChild(table);
+}
+function getHeaders(data) {
+    var headers = new Set();
+    if (Array.isArray(data)) {
+        data.forEach(function(item) {
+            Object.keys(item).forEach(key => headers.add(key));
+        });
+    } else if (typeof data === 'object') {
+        Object.keys(data).forEach(key => headers.add(key));
+    }
+    return Array.from(headers);
+}
+function addRow(table, rowData, headers) {
+    var tr = table.insertRow(-1);
+    headers.forEach(function(header) {
+        var tabCell = tr.insertCell(-1);
+        var cellData = rowData[header];
+        tabCell.innerHTML = cellData !== undefined ? JSON.stringify(cellData) : '';
+    });
 }
