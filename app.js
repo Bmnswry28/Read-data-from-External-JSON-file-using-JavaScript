@@ -1,24 +1,32 @@
-document.getElementById('uploadForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+document.addEventListener('DOMContentLoaded', function() {
+    var uploadForm = document.getElementById('uploadForm');
     var fileInput = document.getElementById('fileInput');
-    var file = fileInput.files[0];
-    if (file) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            var fileContent = e.target.result;
-            document.getElementById('fileContent').textContent = fileContent;
-            try {
-                var jsonData = JSON.parse(fileContent);
-                createTableFromJSON(jsonData);
-            } catch (error) {
-                console.error('Error parsing JSON:', error);
-                alert('JSON: ' + error.message);
+    var fileContentDiv = document.getElementById('fileContent');
+    var showTableDiv = document.getElementById('showTable');
+
+    if (uploadForm && fileInput && fileContentDiv && showTableDiv) {
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var file = fileInput.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var fileContent = e.target.result;
+                    fileContentDiv.textContent = fileContent;
+                    try {
+                        var jsonData = JSON.parse(fileContent);
+                        createTableFromJSON(jsonData);
+                    } catch (error) {
+                        console.error('Error parsing JSON:', error);
+                        alert( 'JSON:' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            } else {
+                alert('Choose a file please');
             }
-        };
-        reader.readAsText(file);
-    } else {
-        alert('Choose a file please.');
-    }
+        });
+    } 
 });
 
 function createTableFromJSON(data) {
@@ -40,9 +48,11 @@ function createTableFromJSON(data) {
         addRow(table, data, headers);
     }
 
-    var divContainer = document.getElementById("showTable");
-    divContainer.innerHTML = "";
-    divContainer.appendChild(table);
+    var showTableDiv = document.getElementById("showTable");
+    if (showTableDiv) {
+        showTableDiv.innerHTML = "";
+        showTableDiv.appendChild(table);
+    }
 }
 
 function getHeaders(data) {
